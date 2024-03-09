@@ -2,19 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DataController;
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+
 
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-Route::get('/', [DataController::class, 'index'])->name('data-table');
-Route::post('/data-table/export-pdf', [DataController::class, 'exportToPdf'])->name('data-table.export-pdf');
+// Route::get('/', [DataController::class, 'index'])->name('data-table');
+Route::get('/', [DataController::class, 'index'])->name('users.index');
+Route::get('/users', [DataController::class, 'getData'])->name('users');
+Route::get('/users/pdf', [DataController::class, 'downloadPdf'])->name('dataTablePdf');

@@ -2,33 +2,59 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;
 use Mpdf\Mpdf;
-
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables;
+use PDF;
 class DataController extends Controller
 {
+
     public function index()
     {
-        $jsonData = [
-            ["name" => "Dabjam", "email" => "tnevin0@house.gov", "status" => false],
-            ["name" => "Tambee", "email" => "myeeles1@woothemes.com", "status" => false],
-            ["name" => "Dynabox", "email" => "amcgibbon2@europa.eu", "status" => true],
-            ["name" => "Avamm", "email" => "qmedendorp3@cornell.edu", "status" => false],
-        ];
-        return view('data-table', compact('jsonData'));
+        return view('dataTable');
     }
-
-    public function exportToPdf(Request $request)
+    
+    public function getData()
     {
-        $jsonData = json_decode($request->get('data'), true);
+        $users = json_decode(file_get_contents(public_path('users.json')), true);
+        return DataTables::of($users)
+                    ->make(true);
 
-        $mpdf = new Mpdf();
-        $mpdf->WriteHtml(view('data-table-pdf', compact('jsonData'))->render());
-        $mpdf->Output('data-table.pdf', 'D'); // Download the PDF
-
-        return response()->json([
-            'message' => 'Data exported successfully!',
-        ]);
     }
+    
+    public function downloadPdf()
+    {
+        // Load users data from JSON file
+        $users = json_decode(file_get_contents(public_path('users.json')), true);
+        if (empty($users)) {
+            // Handle no users scenario (e.g., display message)
+            return;
+          }
+        // Create a new mPDF instance
+        $mpdf = new Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'margin_header' => 10,
+            'margin_footer' => 10,
+            'margin_top' => 30,
+            'margin_bottom' => 20,
+            'margin_left' => 10,
+            'margin_right' => 10,
+        ]);
+    
+        // dd($users); // Place this right before the view is rendered to inspect the data
+
+        // Load the view and pass the users data to it
+        $html = view('dataTablePdf', compact('users'))->render();
+    
+    // dd($html); 
+        // Write the HTML to the PDF
+        $mpdf->WriteHTML($html);
+    
+        // Output the PDF to the browser
+        $mpdf->Output('users.pdf', 'D');
+    }
+    
+    
 }
